@@ -13,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import HomeHeader from '@/components/HomeHeader';
 
 // Mock data - replace with actual data from API
 const inventoryData = {
@@ -234,20 +235,8 @@ export default function HomeScreen() {
         </View>
       </Modal>
       
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity style={styles.menuButton} onPress={toggleSidebar}>
-            <Ionicons name="menu" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.headerRight}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>A</Text>
-          </View>
-          <Text style={styles.adminText}>Admin</Text>
-        </View>
-      </View>
+      {/* Shared header */}
+      <HomeHeader />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Overview Section */}

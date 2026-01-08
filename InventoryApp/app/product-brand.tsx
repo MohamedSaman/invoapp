@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View, Modal, TextInput, TouchableWithoutFeedback, KeyboardAvoidingView, Platform } from 'react-native';
 import HomeHeader from '@/components/HomeHeader';
 
 // Mock brands data
@@ -29,6 +29,8 @@ const mockBrands = [
 export default function ProductBrandScreen() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
+  const [addModalVisible, setAddModalVisible] = useState(false);
+  const [brandName, setBrandName] = useState('');
 
   return (
     <View style={styles.container}>
@@ -50,11 +52,47 @@ export default function ProductBrandScreen() {
               <Text style={styles.subtitle}>Manage and organize your product brands efficiently</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.addButton}>
+          <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisible(true)}>
             <Ionicons name="add-outline" size={18} color="#fff" />
             <Text style={styles.addButtonText}>Add Brand</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Add Brand Modal */}
+        <Modal visible={addModalVisible} transparent animationType="slide">
+          <TouchableWithoutFeedback onPress={() => setAddModalVisible(false)}>
+            <View style={styles.modalOverlay} />
+          </TouchableWithoutFeedback>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalWrapper}>
+            <View style={styles.modalCard}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Add Brand</Text>
+                <TouchableOpacity onPress={() => setAddModalVisible(false)}>
+                  <Ionicons name="close" size={26} color="#111" />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.modalDivider} />
+              <View style={styles.modalBody}>
+                <Text style={styles.formLabel}>Brand Name</Text>
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="Enter brand name"
+                  placeholderTextColor="#999"
+                  value={brandName}
+                  onChangeText={setBrandName}
+                />
+              </View>
+              <View style={styles.modalFooter}>
+                <TouchableOpacity style={styles.closeBtn} onPress={() => setAddModalVisible(false)}>
+                  <Text style={styles.closeBtnText}>Close</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.saveBtn} onPress={() => { setAddModalVisible(false); setBrandName(''); }}>
+                  <Text style={styles.saveBtnText}>Save Brand</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </Modal>
 
         {/* Brand List Card */}
         <View style={styles.listCard}>
@@ -231,4 +269,83 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#666',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)'
+  },
+  modalWrapper: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    top: 60,
+    bottom: 24,
+    justifyContent: 'center',
+  },
+  modalCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111'
+  },
+  modalDivider: {
+    height: 1,
+    backgroundColor: '#eee'
+  },
+  modalBody: {
+    padding: 16,
+    backgroundColor: '#fff'
+  },
+  formLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111',
+    marginBottom: 8
+  },
+  formInput: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e6e6e6',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    color: '#111'
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#eee'
+  },
+  closeBtn: {
+    backgroundColor: '#6b6b6b',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8
+  },
+  closeBtnText: {
+    color: '#fff',
+    fontWeight: '600'
+  },
+  saveBtn: {
+    backgroundColor: '#000',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8
+  },
+  saveBtnText: {
+    color: '#fff',
+    fontWeight: '600'
+  }
 });

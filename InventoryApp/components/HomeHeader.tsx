@@ -117,6 +117,7 @@ export default function HomeHeader() {
   const router = useRouter();
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+  const [adminMenuVisible, setAdminMenuVisible] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
@@ -206,12 +207,41 @@ export default function HomeHeader() {
             <Ionicons name="menu" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
-        <View style={styles.headerRight}>
+        <TouchableOpacity style={styles.headerRight} onPress={() => setAdminMenuVisible(true)}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>A</Text>
           </View>
           <Text style={styles.adminText}>Admin</Text>
-        </View>
+        </TouchableOpacity>
+        {/* Admin dropdown menu */}
+        <Modal
+          visible={adminMenuVisible}
+          transparent={true}
+          animationType="none"
+          onRequestClose={() => setAdminMenuVisible(false)}
+        >
+          <TouchableWithoutFeedback onPress={() => setAdminMenuVisible(false)}>
+            <View style={styles.modalOverlay} />
+          </TouchableWithoutFeedback>
+          <View style={styles.adminMenuWrapper} pointerEvents="box-none">
+            <View style={styles.adminMenuContainer}>
+              <TouchableOpacity style={styles.adminMenuItem} onPress={() => { setAdminMenuVisible(false); router.push('/my-profile'); }}>
+                <Ionicons name="person-outline" size={18} color="#111" />
+                <Text style={styles.adminMenuText}>My Profile</Text>
+              </TouchableOpacity>
+              <View style={styles.adminMenuDivider} />
+              <TouchableOpacity style={styles.adminMenuItem} onPress={() => { setAdminMenuVisible(false); router.push('/settings'); }}>
+                <Ionicons name="settings-outline" size={18} color="#111" />
+                <Text style={styles.adminMenuText}>Settings</Text>
+              </TouchableOpacity>
+              <View style={styles.adminMenuDivider} />
+              <TouchableOpacity style={styles.adminMenuItem} onPress={() => { setAdminMenuVisible(false); router.push('/logout'); }}>
+                <Ionicons name="log-out-outline" size={18} color="#c0392b" />
+                <Text style={[styles.adminMenuText, styles.adminMenuLogout]}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     </>
   );
@@ -271,75 +301,119 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   modalOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   sidebar: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
     width: screenWidth * 0.75,
-    backgroundColor: '#000',
+    backgroundColor: '#1a1a1a',
+    height: '100%',
     paddingTop: 0,
   },
   sidebarHeader: {
-    paddingHorizontal: 20,
-    paddingVertical: 28,
-    paddingTop: 56,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1a1a1a',
+    backgroundColor: '#2a2a2a',
+    paddingTop: 60,
+    paddingBottom: 24,
+    paddingHorizontal: 16,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   sidebarBrandText: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '700',
     color: '#fff',
     textAlign: 'center',
+    letterSpacing: 1,
   },
   sidebarMenu: {
     flex: 1,
-    paddingTop: 10,
+    paddingTop: 0,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
     paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#333333',
   },
   menuItemActive: {
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#333333',
   },
   menuItemExpanded: {
-    backgroundColor: '#0a0a0a',
+    backgroundColor: '#2a2a2a',
   },
   menuItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 16,
   },
   menuItemText: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#fff',
     fontWeight: '500',
   },
   subMenuContainer: {
-    backgroundColor: '#0a0a0a',
-    paddingLeft: 20,
+    backgroundColor: '#2a2a2a',
+    paddingLeft: 0,
   },
   subMenuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
     paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingLeft: 52,
     gap: 12,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#333333',
   },
   subMenuText: {
     fontSize: 14,
-    color: '#ccc',
+    color: '#cccccc',
+    fontWeight: '400',
   },
   sidebarBottomPadding: {
     height: 40,
+  },
+  adminMenuWrapper: {
+    position: 'absolute',
+    right: 12,
+    top: 104,
+    zIndex: 2000,
+  },
+  adminMenuContainer: {
+    width: 200,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 10,
+    overflow: 'hidden',
+  },
+  adminMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    gap: 12,
+  },
+  adminMenuText: {
+    fontSize: 15,
+    color: '#111',
+    marginLeft: 6,
+  },
+  adminMenuDivider: {
+    height: 1,
+    backgroundColor: '#eee',
+  },
+  adminMenuLogout: {
+    color: '#c0392b',
   },
 });

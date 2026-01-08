@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useNavigation } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal, TouchableWithoutFeedback, KeyboardAvoidingView, Platform } from 'react-native';
 import HomeHeader from '@/components/HomeHeader';
 
 // Mock product data based on screenshots
@@ -31,6 +31,30 @@ export default function ListProductScreen() {
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [showEntriesDropdown, setShowEntriesDropdown] = useState(false);
+
+  // Create Product modal state & form fields
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [productCode, setProductCode] = useState('');
+  const [productName, setProductName] = useState('');
+  const [productModel, setProductModel] = useState('');
+  const [selectedBrand, setSelectedBrand] = useState('Default Brand');
+  const [selectedCategory, setSelectedCategory] = useState('Default Category');
+  const [selectedSupplier, setSelectedSupplier] = useState('Default Supplier');
+  const [productImage, setProductImage] = useState('');
+  const [productDescription, setProductDescription] = useState('');
+  const [supplierPrice, setSupplierPrice] = useState('0');
+  const [sellingPrice, setSellingPrice] = useState('0');
+  const [discountPrice, setDiscountPrice] = useState('0');
+  const [availableStock, setAvailableStock] = useState('0');
+  const [damageStock, setDamageStock] = useState('0');
+
+  const saveProduct = () => {
+    // UI-only: close modal
+    setCreateModalVisible(false);
+    // reset fields
+    setProductCode(''); setProductName(''); setProductModel(''); setProductDescription('');
+    setSupplierPrice('0'); setSellingPrice('0'); setDiscountPrice('0'); setAvailableStock('0'); setDamageStock('0');
+  };
 
   const openProductDetail = (product: typeof mockProducts[0]) => {
     router.push({
@@ -143,10 +167,118 @@ export default function ListProductScreen() {
           <TouchableOpacity style={styles.actionBtn}>
             <Ionicons name="checkbox-outline" size={20} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => setCreateModalVisible(true)}>
             <Ionicons name="add" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
+
+        {/* Create Product Modal */}
+        <Modal visible={createModalVisible} animationType="slide" transparent>
+          <TouchableWithoutFeedback onPress={() => setCreateModalVisible(false)}>
+            <View style={styles.modalOverlay} />
+          </TouchableWithoutFeedback>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalWrapper}>
+            <View style={styles.modalCard}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Create New Product</Text>
+                <TouchableOpacity onPress={() => setCreateModalVisible(false)}>
+                  <Ionicons name="close" size={26} color="#111" />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.modalDivider} />
+              <ScrollView style={styles.modalBody} contentContainerStyle={{ paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
+                {/* Basic Information */}
+                <View style={styles.sectionCard}>
+                  <View style={styles.sectionHeader}>
+                    <Ionicons name="information-circle-outline" size={20} color="#111" />
+                    <Text style={styles.sectionTitle}>Basic Information</Text>
+                  </View>
+                  <View style={styles.sectionDivider} />
+                  <Text style={styles.formLabel}>Code:</Text>
+                  <TextInput style={styles.formInput} value={productCode} onChangeText={setProductCode} placeholder="" placeholderTextColor="#999" />
+                  <Text style={styles.formLabel}>Name:</Text>
+                  <TextInput style={styles.formInput} value={productName} onChangeText={setProductName} placeholder="" placeholderTextColor="#999" />
+                  <Text style={styles.formLabel}>Model:</Text>
+                  <TextInput style={styles.formInput} value={productModel} onChangeText={setProductModel} placeholder="" placeholderTextColor="#999" />
+                </View>
+
+                {/* Classification */}
+                <View style={styles.sectionCard}>
+                  <View style={styles.sectionHeader}>
+                    <Ionicons name="git-branch-outline" size={20} color="#111" />
+                    <Text style={styles.sectionTitle}>Classification</Text>
+                  </View>
+                  <View style={styles.sectionDivider} />
+                  <Text style={styles.formLabel}>Brand:</Text>
+                  <TouchableOpacity style={styles.formDropdown}>
+                    <Text style={styles.dropdownText}>{selectedBrand}</Text>
+                    <Ionicons name="chevron-down" size={18} color="#111" />
+                  </TouchableOpacity>
+                  <Text style={styles.formLabel}>Category:</Text>
+                  <TouchableOpacity style={styles.formDropdown}>
+                    <Text style={styles.dropdownText}>{selectedCategory}</Text>
+                    <Ionicons name="chevron-down" size={18} color="#111" />
+                  </TouchableOpacity>
+                  <Text style={styles.formLabel}>Supplier:</Text>
+                  <TouchableOpacity style={styles.formDropdown}>
+                    <Text style={styles.dropdownText}>{selectedSupplier}</Text>
+                    <Ionicons name="chevron-down" size={18} color="#111" />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Product Information */}
+                <View style={styles.sectionCard}>
+                  <View style={styles.sectionHeader}>
+                    <Ionicons name="document-text-outline" size={20} color="#111" />
+                    <Text style={styles.sectionTitle}>Product Information</Text>
+                  </View>
+                  <View style={styles.sectionDivider} />
+                  <Text style={styles.formLabel}>Image:</Text>
+                  <TextInput style={styles.formInput} value={productImage} onChangeText={setProductImage} placeholder="" placeholderTextColor="#999" />
+                  <Text style={styles.formLabel}>Description:</Text>
+                  <TextInput style={[styles.formInput, styles.formTextArea]} value={productDescription} onChangeText={setProductDescription} placeholder="" placeholderTextColor="#999" multiline />
+                </View>
+
+                {/* Pricing and Inventory */}
+                <View style={styles.sectionCard}>
+                  <View style={styles.sectionHeader}>
+                    <Ionicons name="pricetags-outline" size={20} color="#111" />
+                    <Text style={styles.sectionTitle}>Pricing and Inventory</Text>
+                  </View>
+                  <View style={styles.sectionDivider} />
+                  <Text style={styles.formLabel}>Supplier Price:</Text>
+                  <View style={styles.priceInputRow}>
+                    <View style={styles.pricePrefix}><Text style={styles.pricePrefixText}>Rs.</Text></View>
+                    <TextInput style={styles.priceInput} value={supplierPrice} onChangeText={setSupplierPrice} keyboardType="numeric" />
+                  </View>
+                  <Text style={styles.formLabel}>Selling Price:</Text>
+                  <View style={styles.priceInputRow}>
+                    <View style={styles.pricePrefix}><Text style={styles.pricePrefixText}>Rs.</Text></View>
+                    <TextInput style={styles.priceInput} value={sellingPrice} onChangeText={setSellingPrice} keyboardType="numeric" />
+                  </View>
+                  <Text style={styles.formLabel}>Discount Price:</Text>
+                  <View style={styles.priceInputRow}>
+                    <View style={styles.pricePrefix}><Text style={styles.pricePrefixText}>Rs.</Text></View>
+                    <TextInput style={styles.priceInput} value={discountPrice} onChangeText={setDiscountPrice} keyboardType="numeric" />
+                  </View>
+                  <Text style={styles.formLabel}>Available Stock:</Text>
+                  <TextInput style={styles.formInput} value={availableStock} onChangeText={setAvailableStock} keyboardType="numeric" />
+                  <Text style={styles.formLabel}>Damage Stock:</Text>
+                  <TextInput style={styles.formInput} value={damageStock} onChangeText={setDamageStock} keyboardType="numeric" />
+                </View>
+              </ScrollView>
+
+              <View style={styles.modalFooter}>
+                <TouchableOpacity style={styles.closeBtn} onPress={() => setCreateModalVisible(false)}>
+                  <Text style={styles.closeBtnText}>Close</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.saveBtn} onPress={saveProduct}>
+                  <Text style={styles.saveBtnText}>Save Product</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </Modal>
 
         {/* Products List Card */}
         <View style={styles.listCard}>
@@ -648,5 +780,159 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalWrapper: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    top: 50,
+    bottom: 24,
+  },
+  modalCard: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: '#fff',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111',
+  },
+  modalDivider: {
+    height: 1,
+    backgroundColor: '#eee',
+  },
+  modalBody: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  sectionCard: {
+    backgroundColor: '#fff',
+    padding: 16,
+    marginHorizontal: 12,
+    marginTop: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 8,
+    color: '#111',
+  },
+  sectionDivider: {
+    height: 1,
+    backgroundColor: '#eee',
+    marginVertical: 12,
+  },
+  formLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111',
+    marginTop: 10,
+    marginBottom: 6,
+  },
+  formInput: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    color: '#111',
+    fontSize: 15,
+  },
+  formTextArea: {
+    minHeight: 90,
+    textAlignVertical: 'top',
+  },
+  formDropdown: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+  },
+  dropdownText: {
+    fontSize: 15,
+    color: '#111',
+  },
+  priceInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  pricePrefix: {
+    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderRightWidth: 1,
+    borderRightColor: '#e0e0e0',
+  },
+  pricePrefixText: {
+    fontSize: 15,
+    color: '#111',
+  },
+  priceInput: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: '#111',
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 14,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    backgroundColor: '#fff',
+  },
+  closeBtn: {
+    backgroundColor: '#6b6b6b',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  closeBtnText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  saveBtn: {
+    backgroundColor: '#000',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  saveBtnText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 15,
   },
 });

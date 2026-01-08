@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useNavigation } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import HomeHeader from '@/components/HomeHeader';
 
 export default function AddSalesScreen() {
@@ -16,6 +16,14 @@ export default function AddSalesScreen() {
   const [productSearch, setProductSearch] = useState('');
   const [notes, setNotes] = useState('');
   const [saleItems, setSaleItems] = useState<any[]>([]);
+
+  const [customerModalVisible, setCustomerModalVisible] = useState(false);
+  const [custName, setCustName] = useState('');
+  const [custPhone, setCustPhone] = useState('');
+  const [custEmail, setCustEmail] = useState('');
+  const [custType, setCustType] = useState('Retail');
+  const [custBusiness, setCustBusiness] = useState('');
+  const [custAddress, setCustAddress] = useState('');
 
   const grandTotal = saleItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
@@ -33,7 +41,7 @@ export default function AddSalesScreen() {
               <Ionicons name="person-outline" size={24} color="#1a1a1a" />
               <Text style={styles.cardTitle}>Customer{'\n'}Information</Text>
             </View>
-            <TouchableOpacity style={styles.addCustomerBtn}>
+            <TouchableOpacity style={styles.addCustomerBtn} onPress={() => setCustomerModalVisible(true)}>
               <Ionicons name="add-circle-outline" size={16} color="#fff" />
               <Text style={styles.addCustomerText}>Add New{'\n'}Customer</Text>
             </TouchableOpacity>
@@ -128,6 +136,65 @@ export default function AddSalesScreen() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Add Customer Modal */}
+      <Modal
+        visible={customerModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setCustomerModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); }}>
+          <View style={styles.modalOverlay}>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalWrapper}>
+              <View style={styles.modalCard}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Add New Customer</Text>
+                  <TouchableOpacity onPress={() => setCustomerModalVisible(false)}>
+                    <Ionicons name="close" size={20} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView contentContainerStyle={styles.modalBody} keyboardShouldPersistTaps="handled">
+                  <Text style={styles.formLabel}>Name *</Text>
+                  <TextInput style={styles.formInput} placeholder="Enter customer name" value={custName} onChangeText={setCustName} />
+
+                  <Text style={styles.formLabel}>Phone *</Text>
+                  <TextInput style={styles.formInput} placeholder="Enter phone number" value={custPhone} onChangeText={setCustPhone} keyboardType="phone-pad" />
+
+                  <Text style={styles.formLabel}>Email</Text>
+                  <TextInput style={styles.formInput} placeholder="Enter email address" value={custEmail} onChangeText={setCustEmail} keyboardType="email-address" />
+
+                  <Text style={styles.formLabel}>Customer Type *</Text>
+                  <TouchableOpacity style={styles.formInput} onPress={() => {}}>
+                    <Text style={{ color: '#111' }}>{custType}</Text>
+                  </TouchableOpacity>
+
+                  <Text style={styles.formLabel}>Business Name</Text>
+                  <TextInput style={styles.formInput} placeholder="Enter business name" value={custBusiness} onChangeText={setCustBusiness} />
+
+                  <Text style={styles.formLabel}>Address *</Text>
+                  <TextInput style={[styles.formInput, { minHeight: 80 }]} placeholder="Enter address" value={custAddress} onChangeText={setCustAddress} multiline />
+
+                </ScrollView>
+
+                <View style={styles.modalFooterContainer}>
+                  <TouchableOpacity style={styles.cancelBtn} onPress={() => setCustomerModalVisible(false)}>
+                    <Text style={styles.cancelBtnText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.createBtn} onPress={() => {
+                    setCustomerModalVisible(false);
+                    setCustName(''); setCustPhone(''); setCustEmail(''); setCustType('Retail'); setCustBusiness(''); setCustAddress('');
+                  }}>
+                    <Text style={styles.createBtnText}>Create Customer</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </KeyboardAvoidingView>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
     </View>
   );
 }
@@ -308,5 +375,39 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  modalWrapper: {
+    width: '100%',
+  },
+  modalCard: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    overflow: 'hidden',
+    maxHeight: '90%'
+  },
+  modalHeader: {
+    backgroundColor: '#111',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: '#fff' },
+  modalBody: { padding: 16, paddingBottom: 24 },
+  formLabel: { fontSize: 14, fontWeight: '600', color: '#111', marginTop: 8 },
+  formInput: { marginTop: 8, borderWidth: 1, borderColor: '#e6e6e6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, color: '#111', backgroundColor: '#fff' },
+  modalFooter: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, gap: 12 },
+  modalFooterContainer: { flexDirection: 'row', justifyContent: 'space-between', padding: 12, borderTopWidth: 1, borderTopColor: '#eee', backgroundColor: '#fff' },
+  cancelBtn: { backgroundColor: '#777', paddingVertical: 10, paddingHorizontal: 18, borderRadius: 8 },
+  cancelBtnText: { color: '#fff', fontWeight: '700' },
+  createBtn: { backgroundColor: '#111', paddingVertical: 10, paddingHorizontal: 18, borderRadius: 8 },
+  createBtnText: { color: '#fff', fontWeight: '700' },
 });
 
